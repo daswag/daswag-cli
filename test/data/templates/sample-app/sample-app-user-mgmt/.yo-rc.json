@@ -1,0 +1,61 @@
+{
+  "daswag-cli": {
+    "rootAppName": "SampleApp",
+    "rootAppNameCamelCase": "SampleApp",
+    "rootAppNameKebabCase": "sample-app",
+    "baseName": "SampleApp",
+    "baseNameCamelCase": "SampleAppUserMgmt",
+    "baseNameKebabCase": "sample-app-user-mgmt",
+    "provider": "aws",
+    "iac": "sam",
+    "replyToEmailAddress": "test@ippon.fr",
+    "system": "cognito",
+    "userSchemas": [
+      {
+        "name": "family_name",
+        "attributeDataType": "String",
+        "required": true,
+        "mutable": true,
+        "stringAttributeConstraints": {
+          "maxLength": "200",
+          "minLength": "10"
+        }
+      },
+      {
+        "name": "given_name",
+        "attributeDataType": "String",
+        "required": true,
+        "mutable": true
+      },
+      {
+        "name": "locale",
+        "attributeDataType": "String",
+        "required": true,
+        "mutable": true,
+        "stringAttributeConstraints": {
+          "maxLength": "2",
+          "minLength": "0"
+        }
+      },
+      {
+        "name": "test-attribute",
+        "attributeDataType": "String",
+        "required": false,
+        "mutable": true
+      },
+      {
+        "name": "website",
+        "attributeDataType": "String",
+        "required": false,
+        "mutable": true
+      }
+    ],
+    "usernameAttributes": "email_phone_number",
+    "userSignIn": "email_phone_number",
+    "userSignUp": true,
+    "verifiedAttributes": [
+      "email"
+    ],
+    "type": "UserMgmt"
+  }
+}

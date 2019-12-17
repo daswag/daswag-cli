@@ -1,0 +1,17 @@
+{
+  "daswag-cli": {
+    "rootAppName": "SampleApp",
+    "rootAppNameCamelCase": "SampleApp",
+    "rootAppNameKebabCase": "sample-app",
+    "baseName": "SampleApp",
+    "baseNameCamelCase": "SampleAppClient",
+    "baseNameKebabCase": "sample-app-client",
+    "provider": "aws",
+    "iac": "sam",
+    "type": "Client",
+    "clientTheme": "yeti",
+    "framework": "angular",
+    "packageManager": "yarn",
+    "entities": []
+  }
+}

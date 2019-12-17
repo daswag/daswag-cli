@@ -1,0 +1,43 @@
+<nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top" [ngSwitch]="authService.isAuthenticated()">
+  <a class="navbar-brand mb-0 h1" href="#">
+    <span>daSWAG</span>
+  </a>
+  <button class="navbar-toggler" type="button" aria-controls="navbarContent" [attr.aria-expanded]="!collapsed" aria-label="Toggle navigation" (click)="collapsed = !collapsed">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+
+  <div class="collapse navbar-collapse" [class.collapse]="collapsed" id="navbarContent">
+    <ul class="navbar-nav mr-auto">
+      <li class="nav-item" routerLinkActive="active">
+        <a class="nav-link" routerLink="/pages/home">Home</a>
+      </li>
+    </ul>
+    <ul class="navbar-nav ml-auto">
+      <li ngbDropdown class="nav-item" style="cursor: pointer;font-size:16px;" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" *ngSwitchCase="true">
+        <a class="nav-link" ngbDropdownToggle role="button" href="javascript:void(0);" id="account-menu">
+          <span *ngIf="!authService.getPicture()">
+            <fa-icon [icon]="faUser"></fa-icon>
+          </span>
+          <span *ngIf="authService.getPicture()">
+              <img [src]="authService.getPicture()" class="profile-image img-circle" alt="Avatar">
+          </span>
+        </a>
+        <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="account-menu" ngbDropdownMenu>
+          <li>
+            <a class="dropdown-item" routerLink="/pages/profile" routerLinkActive="active">
+              <span>Profile</span>
+            </a>
+          </li>
+          <li>
+            <a class="dropdown-item" (click)="authService.logout()" href="javascript:;" id="logout" routerLinkActive="active">
+              <span>Sign out</span>
+            </a>
+          </li>
+        </ul>
+      </li>
+      <li class="nav-item" *ngSwitchCase="false">
+        <a class="nav-link" (click)="login()" href="javascript:;" id="login">Sign in</a>
+      </li>
+    </ul>
+  </div>
+</nav>

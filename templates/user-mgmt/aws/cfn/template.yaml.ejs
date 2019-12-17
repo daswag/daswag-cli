@@ -1,0 +1,292 @@
+
+AWSTemplateFormatVersion: '2010-09-09'
+Description: >
+  Cloudformation Template used to create and deploy your user management component on AWS
+Parameters:
+  ProjectName:
+    Description: The name of the project
+    Type: String
+  StageName:
+    Description: The name of the stage, e.g. "dev", "preprod", "prod"
+    Default: dev
+    Type: String
+
+Conditions:
+  IsProd: !Equals [!Ref StageName, 'prod']
+  IsNotProd: !Not [!Equals [!Ref StageName, 'prod']]
+
+Resources:
+  <%_ if (userDataStorage) { _%>
+  # User Data bucket
+  UserDataBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub ${ProjectName}-${StageName}-userdata
+      CorsConfiguration:
+        CorsRules:
+          - AllowedHeaders:
+              - "*"
+            AllowedMethods:
+              - GET
+              - PUT
+              - POST
+              - HEAD
+            AllowedOrigins:
+              - "*"
+            MaxAge: '3000'
+  <%_ } _%>
+
+  # UserPool
+  CognitoUserPool:
+    Type: AWS::Cognito::UserPool
+    Properties:
+      UserPoolName: !Sub ${ProjectName}-${StageName}
+      AdminCreateUserConfig:
+        AllowAdminCreateUserOnly: <%= !userSignUp %>
+      EmailConfiguration:
+        EmailSendingAccount: !If [IsProd, "DEVELOPER", "COGNITO_DEFAULT"]
+        <%_ if (replyToEmailAddress) { _%>
+        ReplyToEmailAddress: <%= replyToEmailAddress %>
+        <%_ } _%>
+      <%_ if (verifiedAttributes && verifiedAttributes.length > 0) { _%>
+      AutoVerifiedAttributes:
+        <%_ verifiedAttributes.forEach((att) => { _%>
+        - <%= att %>
+        <%_ }); _%>
+      <%_ } _%>
+      <%_ if (userSignIn === 'username' && aliasAttributes && aliasAttributes.length > 0) { _%>
+      AliasAttributes:
+        <%_ aliasAttributes.forEach((att) => { _%>
+        - <%= att %>
+        <%_ }); _%>
+      <%_ } else if (userSignIn === 'email_phone_number' && usernameAttributes) { _%>
+      UsernameAttributes:
+        <%_ if(usernameAttributes === 'email_phone_number') { _%>
+        - email
+        - phone_number
+        <%_ } else if(usernameAttributes === 'email') { _%>
+        - email
+        <%_ } else { _%>
+        - phone_number
+        <%_ } _%>
+      <%_ } _%>
+      <%_ if(userSchemas && userSchemas.length > 0) { _%>
+      Schema:
+        <%_ userSchemas.forEach((userSchema) => { _%>
+        - Name: <%= userSchema.name %>
+          AttributeDataType: <%= userSchema.attributeDataType %>
+          Mutable: <%= userSchema.mutable %>
+          Required: <%= userSchema.required %>
+          <%_ if(userSchema.attributeDataType === 'Number' && userSchema.numberAttributeConstraints) { _%>
+          NumberAttributeConstraints:
+            MinValue: <%= userSchema.numberAttributeConstraints.minValue %>
+            MaxValue: <%= userSchema.numberAttributeConstraints.maxValue %>
+          <%_ } _%>
+          <%_ if(userSchema.attributeDataType === 'String' && userSchema.stringAttributeConstraints) { _%>
+          StringAttributeConstraints:
+            MinLength: <%= userSchema.stringAttributeConstraints.minLength %>
+            MaxLength: <%= userSchema.stringAttributeConstraints.maxLength %>
+          <%_ } _%>
+        <%_ }) _%>
+      <%_ } _%>
+
+  # Authentication and Identity
+  # Unique CognitoUserPool Client used to manage Api role policies
+  CognitoUserPoolClient:
+    Type: AWS::Cognito::UserPoolClient
+    Properties:
+      ClientName: !Sub ${ProjectName}-${StageName}
+      GenerateSecret: false
+      UserPoolId: !Ref CognitoUserPool
+
+  CognitoAdminGroup:
+    Type: "AWS::Cognito::UserPoolGroup"
+    Properties:
+      GroupName: "admin"
+      Precedence: 1
+      RoleArn: !GetAtt CognitoIdentityPoolAuthAdminRole.Arn
+      UserPoolId: !Ref CognitoUserPool
+
+  CognitoUserPoolDomain:
+    Type: "AWS::Cognito::UserPoolDomain"
+    Properties:
+      CustomDomainConfig:
+        CustomDomainConfigType
+      Domain: !Sub ${ProjectName}-${StageName}
+      UserPoolId: !Ref CognitoUserPool
+
+  # Cognito Roles policies
+  # Admin role
+  CognitoIdentityPoolAuthAdminRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub ${ProjectName}-${StageName}-admin-role
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Federated: cognito-identity.amazonaws.com
+            Action: sts:AssumeRoleWithWebIdentity
+            Condition:
+              ForAnyValue:StringLike:
+                cognito-identity.amazonaws.com:amr: authenticated
+
+  <%_ if (userDataStorage) { _%>
+  # Admin role policy
+  CognitoIdentityPoolAuthAdminPolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: !Sub ${ProjectName}-${StageName}-admin-policy
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Action:
+              - s3:*
+            Effect: Allow
+            Resource:
+              Fn::Join:
+                - ''
+                - - 'arn:aws:s3:::'
+                  - Ref: UserDataBucket
+                  - "/*"
+          # START-API-AUTH-ADMIN-POLICY
+          # END-API-AUTH-ADMIN-POLICY
+      Roles:
+        - Ref: CognitoIdentityPoolAuthAdminRole
+  <%_ } _%>
+
+  # Identity pool configuration
+  CognitoIdPool:
+    Type: AWS::Cognito::IdentityPool
+    Properties:
+      IdentityPoolName: !Sub '${ProjectName}-${StageName}-idp'
+      CognitoIdentityProviders:
+        - ClientId: !Ref CognitoUserPoolClient
+          ProviderName: !GetAtt CognitoUserPool.ProviderName
+      AllowUnauthenticatedIdentities: true
+
+  CognitoIdPoolRoleAttach:
+    Type: AWS::Cognito::IdentityPoolRoleAttachment
+    Properties:
+      IdentityPoolId: !Ref CognitoIdPool
+      Roles:
+        authenticated: !GetAtt CognitoIdentityPoolAuthUserRole.Arn
+        unauthenticated: !GetAtt CognitoIdentityPoolUnAuthRole.Arn
+
+  # Authenticated role
+  CognitoIdentityPoolAuthUserRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub ${ProjectName}-${StageName}-auth-role
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Federated: cognito-identity.amazonaws.com
+            Action: sts:AssumeRoleWithWebIdentity
+            Condition:
+              ForAnyValue:StringLike:
+                cognito-identity.amazonaws.com:amr: authenticated
+
+  <%_ if (userDataStorage) { _%>
+  # Authenticated policy
+  CognitoIdentityPoolAuthUserPolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: !Sub ${ProjectName}-${StageName}-auth-policy
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Action:
+              - s3:GetObject
+            Effect: Allow
+            Resource:
+              Fn::Join:
+                - ''
+                - - 'arn:aws:s3:::'
+                  - Ref: UserDataBucket
+                  - "/${cognito-identity.amazonaws.com:sub}/*"
+          # START-API-AUTH-POLICY
+          # END-API-AUTH-POLICY
+      Roles:
+        - Ref: CognitoIdentityPoolAuthUserRole
+  <%_ } _%>
+
+  # UnAuthenticated role
+  CognitoIdentityPoolUnAuthRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub ${ProjectName}-${StageName}-unauth-role
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Federated: cognito-identity.amazonaws.com
+            Action: sts:AssumeRoleWithWebIdentity
+            Condition:
+              ForAnyValue:StringLike:
+                cognito-identity.amazonaws.com:amr: unauthenticated
+Outputs:
+  UserPool:
+    Description: Cognito User Pool
+    Value: !Ref CognitoUserPool
+    Export:
+      Name: !Sub "${AWS::StackName}-UserPoolId"
+  <%_ if (userDataStorage) { _%>
+  UserDataBucket:
+    Value: !Ref UserDataBucket
+    Description: Name of the S3 bucket used to store application-specific user data
+    Export:
+      Name: !Sub "${AWS::StackName}-UserDataBucket"
+  <%_ } _%>
+  UserPoolClient:
+    Description: Cognito User Pool App
+    Value: !Ref CognitoUserPoolClient
+    Export:
+      Name: !Sub "${AWS::StackName}-UserPoolClient"
+  UserPoolDomain:
+    Description: Domain used by Cognito UserPool
+    Value: !Ref CognitoUserPoolDomain
+    Export:
+      Name: !Sub "${AWS::StackName}-UserPoolDomain"
+  CognitoIdentityPoolAuthAdminRole:
+    Value: !Ref CognitoIdentityPoolAuthAdminRole
+    Description: Name of the Cognito Identity Pool authenticated user role
+  CognitoIdentityPoolAuthAdminRoleArn:
+    Value:
+      Fn::GetAtt:
+        - CognitoIdentityPoolAuthAdminRole
+        - Arn
+    Description: ARN of the Cognito Identity Pool authenticated user role
+    Export:
+      Name: !Sub "${AWS::StackName}-CognitoIdentityPoolAuthAdminRoleArn"
+  IdentityPool:
+    Description: Cognito Identity Pool
+    Value: !Ref CognitoIdPool
+    Export:
+      Name: !Sub "${AWS::StackName}-IdentityPoolId"
+  CognitoIdentityPoolAuthUserRole:
+    Value: !Ref CognitoIdentityPoolAuthUserRole
+    Description: Name of the Cognito Identity Pool authenticated user role
+  CognitoIdentityPoolAuthUserRoleArn:
+    Value:
+      Fn::GetAtt:
+        - CognitoIdentityPoolAuthUserRole
+        - Arn
+    Description: ARN of the Cognito Identity Pool authenticated user role
+    Export:
+      Name: !Sub "${AWS::StackName}-CognitoIdentityPoolAuthUserRoleArn"
+  CognitoIdentityPoolUnAuthRole:
+    Value: !Ref CognitoIdentityPoolUnAuthRole
+    Description: Name of the Cognito Identity Pool unauthenticated user role
+  CognitoIdentityPoolUnAuthRoleArn:
+    Value:
+      Fn::GetAtt:
+        - CognitoIdentityPoolUnAuthRole
+        - Arn
+    Description: ARN of the Cognito Identity Pool unauthenticated user role
+    Export:
+      Name: !Sub "${AWS::StackName}-CognitoIdentityPoolUnAuthRoleArn"

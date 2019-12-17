@@ -1,0 +1,4 @@
+boto3
+aws-xray-sdk
+python-json-logger
+marshmallow

@@ -1,0 +1,42 @@
+.error_bg {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-image: url('/assets/img/404.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-position: center bottom;
+}
+
+.error_page {
+  display: flex;
+  flex: 1;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.error_content {
+  margin-top: 4rem;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  color: #ffffff;
+}
+
+.error_title {
+  font-size: 12rem;
+  font-weight: 700;
+}
+
+.error_desc {
+  font-size: 1.5rem;
+  margin-left: 80px;
+}
+
+.error-btn {
+  margin-top:20px;
+}

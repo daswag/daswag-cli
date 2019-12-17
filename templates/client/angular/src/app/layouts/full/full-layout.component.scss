@@ -1,0 +1,12 @@
+.wrapper {
+  position: relative;
+  top: 0;
+  height: 100vh;
+}
+
+.main {
+  padding: 60px 15px 0;
+  position: relative;
+  min-height: calc(100% - 50px);
+  transition: all .3s ease;
+}

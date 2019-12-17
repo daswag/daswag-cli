@@ -1,0 +1,166 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Pipeline used for Continuous Integration and Deployment
+
+Parameters:
+  ProjectName:
+    Description: The name of the project
+    Type: String
+  StageName:
+    Description: The name of the stage, e.g. "dev", "preprod", "prod"
+    Default: dev
+    Type: String
+  GitHubOwner:
+    Type: String
+    Default: daswag
+    Description: The owner of the Github repo for this application
+  GitHubRepo:
+    Description: Github repository name
+    Type: String
+    Default: daswag-cli
+  CodeCovToken:
+    Description: Token used to push code coverage data to CodeCov
+    Type: String
+    NoEcho: true
+  GithubToken:
+    Description: Token used to push information to Github Repo
+    Type: String
+    NoEcho: true
+  NpmToken:
+    Description: Token used to push information to NPM Repo
+    Type: String
+    NoEcho: true
+  SonarToken:
+    Description: Token used to push information to SonarCloud
+    Type: String
+    NoEcho: true
+
+Resources:
+
+  CodeCovTokenParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Sub "${ProjectName}-codecov-token"
+      Type: "String"
+      Value: !Ref CodeCovToken
+      Description: "SSM Parameter for CodeCov Token"
+
+  SonarTokenParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Sub "${ProjectName}-sonar-token"
+      Type: "String"
+      Value: !Ref SonarToken
+      Description: "SSM Parameter for Sonar Token"
+
+  GithubTokenParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Sub "${ProjectName}-github-token"
+      Type: "String"
+      Value: !Ref GithubToken
+      Description: "SSM Parameter for Github Token"
+
+  NpmTokenParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Sub "${ProjectName}-npm-token"
+      Type: "String"
+      Value: !Ref NpmToken
+      Description: "SSM Parameter for NPM Token"
+
+  CodeBuildProject:
+    Type: AWS::CodeBuild::Project
+    Properties:
+      Name: !Sub '${ProjectName}-build'
+      BadgeEnabled: true
+      Description: This is a build project
+      ServiceRole: !GetAtt CodeBuildServiceRole.Arn
+      Artifacts:
+        Type: NO_ARTIFACTS
+      Environment:
+        Type: LINUX_CONTAINER
+        ComputeType: BUILD_GENERAL1_SMALL
+        Image: aws/codebuild/amazonlinux2-x86_64-standard:2.0
+      Source:
+        Type: GITHUB
+        ReportBuildStatus: true
+        Auth:
+          Type: OAUTH
+        Location: !Sub 'https://github.com/${GitHubOwner}/${GitHubRepo}.git'
+      Triggers:
+        Webhook: true
+        FilterGroups:
+          - - Type: EVENT
+              Pattern: PULL_REQUEST_CREATED,PULL_REQUEST_UPDATED
+            - Type: BASE_REF
+              Pattern: ^refs/heads/master$
+              ExcludeMatchedPattern: false
+      TimeoutInMinutes: 30
+
+  CodeDeliveryProject:
+    Type: AWS::CodeBuild::Project
+    Properties:
+      Name: !Sub '${ProjectName}-delivery'
+      BadgeEnabled: true
+      Description: This is a delivery beta project
+      ServiceRole: !GetAtt CodeBuildServiceRole.Arn
+      Artifacts:
+        Type: NO_ARTIFACTS
+      Environment:
+        Type: LINUX_CONTAINER
+        ComputeType: BUILD_GENERAL1_SMALL
+        Image: aws/codebuild/amazonlinux2-x86_64-standard:2.0
+      Source:
+        Type: GITHUB
+        ReportBuildStatus: true
+        GitCloneDepth: 0 # Full
+        Auth:
+          Type: OAUTH
+        BuildSpec: deliveryspec.yaml
+        Location: !Sub 'https://github.com/${GitHubOwner}/${GitHubRepo}.git'
+      Triggers:
+        Webhook: true
+        FilterGroups:
+          - - Type: EVENT
+              Pattern: PUSH
+            - Type: HEAD_REF
+              Pattern: ^refs/heads/master$
+              ExcludeMatchedPattern: false
+      TimeoutInMinutes: 30
+
+  CodeBuildServiceRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub 'role-${ProjectName}-${StageName}-build'
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - codebuild.amazonaws.com
+            Action: 'sts:AssumeRole'
+      Path: /
+      Policies:
+        - PolicyName: !Sub 'policy-${ProjectName}-${StageName}-build-exec'
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Resource:
+                  - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/codebuild/${ProjectName}-build'
+                  - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/codebuild/${ProjectName}-build:*'
+                  - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/codebuild/${ProjectName}-delivery'
+                  - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/codebuild/${ProjectName}-delivery:*'
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+              - Effect: Allow
+                Resource:
+                  - !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${ProjectName}-codecov-token'
+                  - !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${ProjectName}-github-token'
+                  - !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${ProjectName}-npm-token'
+                  - !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${ProjectName}-sonar-token'
+                Action:
+                  - ssm:GetParameters

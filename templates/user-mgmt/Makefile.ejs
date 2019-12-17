@@ -1,0 +1,34 @@
+SHELL:=/bin/bash
+
+BASE := $(shell /bin/pwd)
+
+export PATH := var:$(PATH):$(VENV_DIR)/bin
+
+.DEFAULT_GOAL := output
+
+PROJECT_NAME ?= <%= baseNameKebabCase %>
+STAGE_NAME ?= dev
+
+CFN_PARAMS := ProjectName=$(PROJECT_NAME) \
+		StageName=$(STAGE_NAME)
+
+TAGS_PARAMS := "daswag:project"="${PROJECT_NAME}" \
+		"daswag:owner"="daswag" \
+		"daswag:environment"=$(STAGE_NAME)
+
+deploy:
+	aws cloudformation deploy \
+		--template-file template.yaml \
+		--stack-name ${PROJECT_NAME}-${STAGE_NAME} \
+		--parameter-overrides $(CFN_PARAMS) \
+		--capabilities CAPABILITY_NAMED_IAM \
+		--tags $(TAGS_PARAMS)
+
+delete:
+	aws cloudformation delete-stack \
+	--stack-name $(PROJECT_NAME)-${STAGE_NAME}
+
+output:
+	aws cloudformation describe-stacks \
+		--stack-name ${PROJECT_NAME}-${STAGE_NAME} \
+		--query 'Stacks[].Outputs'

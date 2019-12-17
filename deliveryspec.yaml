@@ -1,0 +1,27 @@
+version: 0.2
+
+env:
+  parameter-store:
+    GITHUB_TOKEN: "daswag-cli-github-token"
+    NPM_TOKEN: "daswag-cli-npm-token"
+    SONAR_TOKEN: "daswag-cli-sonar-token"
+
+phases:
+  install:
+    runtime-versions:
+      nodejs: 12
+  pre_build:
+    commands:
+      - make install
+      - make install-sonar
+      - ./bin/run --version
+      - ./bin/run --help
+  build:
+    commands:
+      - make test
+      - make codecov
+      - make sonar
+      - make semantic-release
+cache:
+  paths:
+    - 'node_modules/**/*'

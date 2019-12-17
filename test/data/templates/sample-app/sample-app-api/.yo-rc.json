@@ -1,0 +1,23 @@
+{
+  "daswag-cli": {
+    "rootAppName": "SampleApp",
+    "rootAppNameCamelCase": "SampleApp",
+    "rootAppNameKebabCase": "sample-app",
+    "baseName": "SampleApp",
+    "baseNameCamelCase": "SampleAppApi",
+    "baseNameKebabCase": "sample-app-api",
+    "provider": "aws",
+    "iac": "sam",
+    "type": "Api",
+    "language": "python37",
+    "db": "dynamodb",
+    "entities": [],
+    "resources": [
+      {
+        "name": "users",
+        "nameSnakeCase": "users",
+        "path": "/users"
+      }
+    ]
+  }
+}

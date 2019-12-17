@@ -1,0 +1,9 @@
+
+<%_ if (clientTheme !== 'none') {_%>
+@import "~bootswatch/dist/<%= clientTheme %>/variables";
+<%_ } _%>
+@import "~bootstrap/scss/bootstrap";
+<%_ if (clientTheme !== 'none') { _%>
+@import "~bootswatch/dist/<%= clientTheme %>/bootswatch";
+<%_ } _%>
+@import '~aws-amplify-angular/Theme.css';

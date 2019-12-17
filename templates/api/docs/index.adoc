@@ -1,0 +1,41 @@
+= <%= baseNameCamelCase %>
+:doctype: book
+:toc: left
+:toclevels: 3
+:toc-title: Summary
+:sectanchors:
+:theme: flask
+:sectlinks:
+:sectnums:
+:sectnumlevels: 6
+:linkattrs:
+:icons: font
+:source-highlighter: coderay
+:source-language: asciidoc
+:experimental:
+:stem:
+:idprefix:
+:idseparator: -
+:description:
+:includedir: _includes
+:imagesdir:
+:experimental:
+:appVersion: 0.0.1
+
+
+[NOTE]
+.This document is still in continuous development/modification
+====
+If you find issues, please report to <%= baseNameCamelCase %> team.
+====
+
+:toc!:
+{set:cellbgcolor:#FFFFFF}
+[cols="30%,40%,30%"]
+|===
+^.^|*version*
+^.^|*PublicCloudPlatform*
+^.^|[big red]*{appVersion}*
+|===
+
+include::content/overview.adoc[]

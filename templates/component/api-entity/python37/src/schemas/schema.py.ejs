@@ -1,0 +1,15 @@
+from marshmallow import Schema, fields
+
+
+class <%= nameCamelCase %>Schema(Schema):
+<%_ for(var i=0; i < attributes.length; i++) { _%>
+    <%_ if(attributes[i].attributeDataType === 'string') { _%>
+    <%= attributes[i].name %>: fields.String(required=attributes[i].required)
+    <%_ } else if(attributes[i].attributeDataType === 'number') { _%>
+    <%= attributes[i].name %>: fields.Number(required=attributes[i].required)
+    <%_ } else if(attributes[i].attributeDataType === 'integer') { _%>
+    <%= attributes[i].name %>: fields.Integer(required=attributes[i].required)
+    <%_ } else if(attributes[i].attributeDataType === 'boolean') { _%>
+    <%= attributes[i].name %>: fields.Boolean(required=attributes[i].required)
+    <%_ } _%>
+<%_ } _%>

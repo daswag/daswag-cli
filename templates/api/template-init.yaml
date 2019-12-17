@@ -1,0 +1,30 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: >
+  AWS Init Template used to create all needed resource for deployment of this project
+  This stack must follow the Least Privilege principle
+
+Parameters:
+  ProjectName:
+    Description: The name of the project
+    Type: String
+  StageName:
+    Description: The name of the stage, e.g. "dev", "preprod", "prod"
+    Default: dev
+    Type: String
+
+Resources:
+  DeployBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub ${ProjectName}-${StageName}-build-resources
+      LifecycleConfiguration:
+        Rules:
+          - Id: DeleteRule
+            Prefix: delete
+            Status: Enabled
+            ExpirationInDays: '10'
+
+Outputs:
+  DeployBucketName:
+    Description: Name of the bucket used to deploy resources
+    Value: !Ref DeployBucket

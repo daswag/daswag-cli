@@ -1,0 +1,157 @@
+openapi: "3.0.1"
+info:
+  version: 1.0.0
+  title: SampleApp
+  description: >
+    ## Overview
+    This is the backend API which is used by the clients to talk to the
+    backend services.
+    All the API endpoints are HTTPS only and require authentication through dedicated identity provider.
+    The API is deployed to [AWS API
+    Gateway](https://aws.amazon.com/api-gateway/), with each endpoint mapped to
+    a dedicated [AWS Lambda](https://aws.amazon.com/lambda/) function.
+    It is meant to be as
+    [RESTful](http://en.wikipedia.org/wiki/Representational_state_transfer) as
+    possible, however some specificities due to using AWS and the constant
+    evolution of the product might appear. They are documented when applicable.
+    ## Conventions
+    ### HTTP Methods
+      - Retrieving an item is done via the GET method, and returns either an object, specific properties from an object, or a `message` object reponse.
+      - Adding a new item is done via the POST method, and returns the id of the object created.
+      - Editing/Updating an item is done via the PUT method, and returns the full object.
+      - Deleting an item is done via the DELETE method, and returns a `message` object.
+    ### The `message` object
+      The `message` object is used to return a standard response to API operations that result in a boolean, and for all the error messages.
+  termsOfService: https://www.daswag.tech/terms/
+  contact:
+    name: daSWAG Team
+    email: support@daswag.tech
+    url: https://www.daswag.tech
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
+
+paths:
+  /users:
+    options:
+      responses:
+        200:
+          description: "200 response"
+          headers:
+            Access-Control-Allow-Origin:
+              schema:
+                type: "string"
+            Access-Control-Allow-Methods:
+              schema:
+                type: "string"
+            Access-Control-Allow-Headers:
+              schema:
+                type: "string"
+          content: {}
+      x-amazon-apigateway-integration:
+        passthroughBehavior: "when_no_match"
+        requestTemplates:
+          application/json: |
+            { "statusCode": 200 }
+        responses:
+          default:
+            statusCode: "200"
+            responseParameters:
+              method.response.header.Access-Control-Allow-Methods: "'OPTIONS, GET'"
+              method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+              method.response.header.Access-Control-Allow-Origin: "'*'"
+            responseTemplates:
+              application/json: "{}\n"
+        type: "mock"
+    get:
+      summary: Get all users
+      description: Get all users
+      operationId: GetAllUsers
+      security:
+        - default : []
+      responses:
+        '200':
+          description: Get all users
+          headers:
+            Access-Control-Allow-Origin:
+              schema:
+                type: "string"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Users"
+        default:
+          description: unexpected error
+          headers:
+            Access-Control-Allow-Origin:
+              schema:
+                type: "string"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+      x-amazon-apigateway-integration:
+        responses:
+          default:
+            statusCode: '200'
+            responseParameters:
+              method.response.header.Access-Control-Allow-Origin: "'*'"
+        uri:
+          Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetAllUsersFunction.Arn}:live/invocations
+        passthroughBehavior: when_no_match
+        httpMethod: POST
+        type: aws_proxy
+
+components:
+  schemas:
+    Error:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: integer
+        message:
+          type: string
+    User:
+      type: object
+      required:
+        - id
+        - firstName
+        - age
+      properties:
+        id:
+          type: string
+        firstName:
+          type: string
+          minLength: 2
+        lastName:
+          type: string
+          minLength: 2
+          maxLength: 10
+        age:
+          type: number
+          minimum: 0
+          maximum: 100
+        test:
+          type: integer
+        activate:
+          type: boolean
+    Users:
+      type: array
+      items:
+        $ref: '#/components/schemas/User'
+  securitySchemes:
+    default:
+      type: "apiKey"
+      name: "Authorization"
+      in: "header"
+      x-amazon-apigateway-authtype: "awsSigv4"
+x-amazon-apigateway-request-validators:
+  Validate body:
+    validateRequestParameters: false
+    validateRequestBody: true
+  Validate query string parameters and headers:
+    validateRequestParameters: true
+    validateRequestBody: false

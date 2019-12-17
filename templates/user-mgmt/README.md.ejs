@@ -1,0 +1,55 @@
+# <%= baseNameCamelCase %>
+
+This is a daSWAG template for your User Management authentication system.
+
+## Requirements
+
+* AWS CLI already configured with at least PowerUser permission
+
+## Setup process
+
+### Deployment
+
+Firstly, we need a technical user used to deploy your stack following the `Least Privilege principle` - If you don't have a technical user to deploy your user management component then this is a good time to create one:
+
+```bash
+make deploy-init
+```
+
+Next, the following command will create a Cloudformation Stack and deploy all your user management component resources.
+
+```bash
+make deploy
+```
+
+> **See [daSWAG HOWTO Guide] for more details on daSWAG user management component integration.**
+
+After deployment is complete you can run the following command to retrieve the API Gateway Endpoint URL:
+
+```bash
+make output
+```
+
+## Production
+
+By default all your resources are going to be built for a development environment. If you need to deploy to other stage, you simply need to add a `STAGE_NAME=your-env` parameters on each previous command.
+
+For example to deploy into production you will have:
+
+```bash
+make deploy STAGE_NAME=prod
+
+make output STAGE_NAME=prod
+```
+
+## daSWAG CLI commands
+
+daSWAG CLI commands to deploy and describe outputs defined within the cloudformation stack:
+
+```bash
+
+make deploy
+
+make output
+
+```
