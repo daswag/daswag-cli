@@ -50,6 +50,7 @@
     "@oclif/test": "^1.2.5",
     "@oclif/tslint": "^3.1.1",
     "@semantic-release/changelog": "^3.0.6",
+    "@semantic-release/git": "^7.0.18",
     "@types/chai": "^4",
     "@types/fs-extra": "^5.0.5",
     "@types/gulp-filter": "^3.0.33",
@@ -158,13 +159,23 @@
       "@semantic-release/commit-analyzer",
       "@semantic-release/release-notes-generator",
       "@semantic-release/changelog",
-      ["@semantic-release/npm", {
-        "npmPublish": false
-      }],
+      [
+        "@semantic-release/npm",
+        {
+          "npmPublish": false
+        }
+      ],
       "@semantic-release/github",
-      ["@semantic-release/git", {
-        "assets": ["package.json", "npm-shrinkwrap.json", "CHANGELOG.md"]
-      }]
+      [
+        "@semantic-release/git",
+        {
+          "assets": [
+            "package.json",
+            "npm-shrinkwrap.json",
+            "CHANGELOG.md"
+          ]
+        }
+      ]
     ]
   }
 }
