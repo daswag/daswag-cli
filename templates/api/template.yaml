@@ -35,7 +35,7 @@ Resources:
         Fn::Transform:
           Name: AWS::Include
           Parameters:
-            Location: !Sub s3://${ProjectName}-${StageName}-resources/specs.yaml
+            Location: specs/specs.yaml
 
   ApiLogGroup:
     Type: AWS::Logs::LogGroup

@@ -13,8 +13,6 @@ phases:
     commands:
       - make install
       - make install-sonar
-      - ./bin/run --version
-      - ./bin/run --help
   build:
     commands:
       - make test

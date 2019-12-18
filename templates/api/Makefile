@@ -15,7 +15,6 @@ export PATH := var:$(PATH):$(VENV_DIR)/bin
 
 PROJECT_NAME ?= <%= baseNameKebabCase %>
 STAGE_NAME ?= dev
-SWAGGER_FILE="specs/specs.yaml"
 
 export AWS_REGION ?= eu-west-1
 export TABLE_NAME ?= $(PROJECT_NAME)-$(STAGE_NAME)
@@ -67,10 +66,6 @@ build:
 
 build-container:
 	sh -c '. .venv/bin/activate; sam build --use-container'
-
-copy-specs:
-	sh -c '. .venv/bin/activate; aws s3 cp ${SWAGGER_FILE} s3://${PROJECT_NAME}-${STAGE_NAME}-build-resources/$(SWAGGER_FILE) \
-		--region $(AWS_REGION)'
 
 package:
 	sh -c '. .venv/bin/activate; sam package \

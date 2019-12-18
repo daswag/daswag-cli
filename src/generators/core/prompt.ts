@@ -165,7 +165,7 @@ export class Prompt {
   public async askForEntityName(configValue: string | undefined, entities: IEntitySchema[] | undefined): Promise<Generator.Answers> {
     // Display previously created entities
     if(entities) {
-      this.generator.log(`\nYou have already created those entities: ${this.displayEntities(entities)}`);
+      this.generator.log(`\n${chalk.yellow(`You have already created those entities: ${this.displayEntities(entities)}`)}`);
     }
     return configValue === undefined ? this.generator.prompt([{
       message: `${chalk.red('Schema')} - What is the name of your entity?`,
