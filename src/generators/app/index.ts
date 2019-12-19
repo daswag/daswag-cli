@@ -65,7 +65,6 @@ class App extends Base {
 
   public async configuring() {
     this.logger.debug('Configuring phase start');
-
     // We are creating a new project, we need to init the user management system first if needed
     if (this.opts.services.includes(UserMgmt.GENERATOR_TYPE)) {
       this.composeWith(require.resolve('../services/' + changeCase.paramCase(UserMgmt.GENERATOR_TYPE)), {
