@@ -1,7 +1,7 @@
 import * as changeCase from "change-case";
+import * as pjson from "pjson";
 import {IApiResourceOptions} from "../generators/model/api-options.model";
 import LoggerUtils from './logger-utils';
-import * as pjson from "pjson";
 
 export default class Utils {
 

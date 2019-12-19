@@ -1,9 +1,9 @@
 import chalk from "chalk";
+import * as inquirer from "inquirer";
 import {GeneratorBase} from '../../generator-base';
 import Api = require('../../generators/services/api');
 import Client = require('../../generators/services/client');
 import UserMgmt = require("../../generators/services/user-mgmt");
-import * as inquirer from "inquirer";
 
 export class Update extends GeneratorBase {
   public static description = 'create a new service';

@@ -51,7 +51,12 @@ class ApiEntity extends Base {
     this.logger.debug('Prompting phase start');
     // Get ApiMethod prompts
     const prompt = new ApiEntityPrompts(this);
-    this.log(`Let's configure our ${chalk.red('Resource')} component.`);
+    // List current entities
+    if(this.opts.entities && this.opts.entities.length > 0) {
+      this.log(`You currently have created those entities: ${chalk.yellow(prompt.displayEntities(this.opts.entities))}`);
+    } else {
+      this.log(`You do not have any entity created.`);
+    }
     // Get Entity name
     let answerName = await prompt.askForEntityName(this.newEntity.name, this.opts.entities) as any;
     if (answerName && answerName.name) {
@@ -105,6 +110,7 @@ class ApiEntity extends Base {
   public default() {
     this.logger.debug('Default phase start');
     // Update resources
+    this.logger.info(JSON.stringify(this.opts));
     this.config.set('entities', this.opts.entities);
     this.config.save();
   }

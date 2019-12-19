@@ -84,7 +84,7 @@ export class Prompt {
         const answerName = await this.askForEntityAttributeParameterName();
         // 2. Choose parameter type ()
         let answerAttributeDataType: Generator.Answers = {};
-        answerAttributeDataType = this.askForEntityAttributeDataType();
+        answerAttributeDataType = await this.askForEntityAttributeDataType();
         // 4. Choose required value
         const answerRequired = await this.askForRequired();
         // 5. Attribute constraint
@@ -142,7 +142,7 @@ export class Prompt {
         {name: 'Integer', value: Prompt.ENTITY_ATTRIBUTE_TYPE_INTEGER_VALUE},
         {name: 'Boolean', value: Prompt.ENTITY_ATTRIBUTE_TYPE_BOOLEAN_VALUE},
       ],
-      message: `${chalk.red('Schema')} - What is the type of your attribute ()?`,
+      message: `${chalk.red('Schema')} - What is the type of your attribute?`,
       name: 'attributeDataType',
       type: 'list',
     }]);
@@ -163,10 +163,6 @@ export class Prompt {
   }
 
   public async askForEntityName(configValue: string | undefined, entities: IEntitySchema[] | undefined): Promise<Generator.Answers> {
-    // Display previously created entities
-    if(entities) {
-      this.generator.log(`\n${chalk.yellow(`You have already created those entities: ${this.displayEntities(entities)}`)}`);
-    }
     return configValue === undefined ? this.generator.prompt([{
       message: `${chalk.red('Schema')} - What is the name of your entity?`,
       name: 'name',
@@ -174,6 +170,8 @@ export class Prompt {
       validate: (input: string) => {
         if (!/[a-z]{0,20}/.test(input)) {
           return 'Your entity name is not valid.';
+        } else if(this.checkEntityExist(input, entities)) {
+          return `Your entity already exist, please choose an other name. To update an existing entity, please use ${chalk.red('daswag update')} command`
         }
         return true;
       }
@@ -278,6 +276,14 @@ export class Prompt {
     }]);
   }
 
+  public displayEntities(entities: IEntitySchema[]) {
+    let displayValues = entities.length > 0 ? '' : 'None';
+    entities.forEach((value: IEntitySchema) => {
+      displayValues += value.name +  ' ';
+    });
+    return displayValues;
+  }
+
   private displayEntitySchema(schemasValues: IAttributeSchema[]) {
     let displayValues = schemasValues.length > 0 ? '' : 'None';
     schemasValues.forEach((value: IAttributeSchema) => {
@@ -286,19 +292,12 @@ export class Prompt {
     return displayValues;
   }
 
-  private displayEntities(entities: IEntitySchema[]) {
-    let displayValues = entities.length > 0 ? '' : 'None';
-    entities.forEach((value: IEntitySchema) => {
-      displayValues += value.name +  ' ';
-    });
-    return displayValues;
-  }
 
-  private checkEntityExist(entityName: string, entities: IEntitySchema[]) {
+  private checkEntityExist(entityName: string, entities: IEntitySchema[] | undefined) {
     let exist = false;
     if(entities) {
       entities.forEach((entity: IEntitySchema) => {
-        if(entity.name === entityName) {
+        if(entity.name && entity.name.toUpperCase() === entityName.toUpperCase()) {
           exist = true;
         }
       });

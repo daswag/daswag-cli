@@ -2,12 +2,9 @@
   "extends": "../tsconfig",
   "compilerOptions": {
     "noEmit": true,
-    "noImplicitAny": false
+    "noImplicitAny": false,
   },
   "references": [
     {"path": ".."}
-  ],
-  "include": [
-    "src/**/*"
   ]
 }

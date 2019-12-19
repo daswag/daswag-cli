@@ -4,9 +4,9 @@ import * as path from "path";
 import * as Generator from "yeoman-generator";
 import FileUtils from "../../utils/file-utils";
 import Utils from "../../utils/utils";
+import {Prompt} from '../core/prompt';
 import Api = require("../services/api");
 import Client = require("../services/client");
-import {Prompt} from '../core/prompt';
 import UserMgmt = require("../services/user-mgmt");
 
 export class AppPrompts extends Prompt  {

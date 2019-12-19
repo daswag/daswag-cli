@@ -7,7 +7,7 @@ import {IEntitySchema} from "../../model/options.model";
 
 export class ApiEntityFiles extends File {
 
-  private static API_ENTITY_TEMPLATE_PATH = '../../../../templates/component/api-entity';
+  private static API_ENTITY_TEMPLATE_PATH = '../../../templates/component/api-entity';
   private static PYTHON37_PATH = 'python37/';
 
   private newEntity: IEntitySchema;

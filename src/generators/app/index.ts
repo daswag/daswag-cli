@@ -1,9 +1,9 @@
 import chalk from "chalk";
+import * as changeCase from "change-case";
 import {Base} from '../core/base';
 import {IAppOptions} from "../model/app-options.model";
 import UserMgmt = require("../services/user-mgmt");
 import {AppPrompts} from "./app-prompts";
-import * as changeCase from "change-case";
 
 /**
  * Generator used to create a new project.

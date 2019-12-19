@@ -7,9 +7,9 @@ import * as filter from 'gulp-filter';
 import * as prettier from 'prettier';
 import through = require("through2");
 import CheckUtils from "../../utils/check-utils";
+import Utils from "../../utils/utils";
 import {IOptions} from "../model/options.model";
 import {Prompt} from "./prompt";
-import Utils from "../../utils/utils";
 
 export abstract class Base extends Generator {
 
