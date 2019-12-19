@@ -4,7 +4,6 @@ import {IOptions} from "../../model/options.model";
 
 export class UserMgmtFiles extends File {
 
-  private static USER_MGMT_AWS_CFN_PATH = 'aws/cfn/';
   private static USER_MGMT_PATH = '../../../templates/user-mgmt/';
 
   constructor(generator: Base, options: IOptions) {
@@ -14,7 +13,6 @@ export class UserMgmtFiles extends File {
   public files() {
     return {
       ...this.userMgmtCommonFiles(),
-      ...this.userMgmtAwsCfnFiles(),
     }
   }
 
@@ -25,21 +23,9 @@ export class UserMgmtFiles extends File {
           templates: [
             'Makefile.ejs',
             'README.md.ejs',
-          ]
-        }
-      ]
-    };
-  }
-
-  private userMgmtAwsCfnFiles() {
-    return {
-      template: [
-        {
-          path: UserMgmtFiles.USER_MGMT_AWS_CFN_PATH,
-          templates: [
             'template.yaml.ejs'
           ]
-        },
+        }
       ]
     };
   }

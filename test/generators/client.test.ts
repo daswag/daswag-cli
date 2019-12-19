@@ -2,11 +2,11 @@ import * as fse from "fs-extra";
 import * as path from 'path';
 import * as assert from 'yeoman-assert';
 import * as helpers from 'yeoman-test';
-import {ClientFiles} from "../../src/generators/services/client/client-files";
-import {ClientPrompts} from '../../src/generators/services/client/client-prompts';
 import {Base} from "../../src/generators/core/base";
 import {Prompt} from '../../src/generators/core/prompt';
 import {IClientOptions} from "../../src/generators/model/client-options.model";
+import {ClientFiles} from "../../src/generators/services/client/client-files";
+import {ClientPrompts} from '../../src/generators/services/client/client-prompts';
 import {ConstantsUtils} from "../../src/utils/constants-utils";
 import FileTools from "../tools/file-tools"
 

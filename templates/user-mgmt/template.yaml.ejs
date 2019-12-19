@@ -13,8 +13,6 @@ Parameters:
 
 Conditions:
   IsProd: !Equals [!Ref StageName, 'prod']
-  IsNotProd: !Not [!Equals [!Ref StageName, 'prod']]
-
 Resources:
   <%_ if (userDataStorage) { _%>
   # User Data bucket
@@ -91,7 +89,6 @@ Resources:
       <%_ } _%>
 
   # Authentication and Identity
-  # Unique CognitoUserPool Client used to manage Api role policies
   CognitoUserPoolClient:
     Type: AWS::Cognito::UserPoolClient
     Properties:
@@ -99,6 +96,15 @@ Resources:
       GenerateSecret: false
       UserPoolId: !Ref CognitoUserPool
 
+  CognitoUserPoolDomain:
+    Type: "AWS::Cognito::UserPoolDomain"
+    Properties:
+      Domain: !Sub ${ProjectName}-${StageName}
+      UserPoolId: !Ref CognitoUserPool
+
+  # Cognito Roles policies
+
+  <%_ if (adminGroup) { _%>
   CognitoAdminGroup:
     Type: "AWS::Cognito::UserPoolGroup"
     Properties:
@@ -107,15 +113,6 @@ Resources:
       RoleArn: !GetAtt CognitoIdentityPoolAuthAdminRole.Arn
       UserPoolId: !Ref CognitoUserPool
 
-  CognitoUserPoolDomain:
-    Type: "AWS::Cognito::UserPoolDomain"
-    Properties:
-      CustomDomainConfig:
-        CustomDomainConfigType
-      Domain: !Sub ${ProjectName}-${StageName}
-      UserPoolId: !Ref CognitoUserPool
-
-  # Cognito Roles policies
   # Admin role
   CognitoIdentityPoolAuthAdminRole:
     Type: AWS::IAM::Role
@@ -131,8 +128,9 @@ Resources:
             Condition:
               ForAnyValue:StringLike:
                 cognito-identity.amazonaws.com:amr: authenticated
+  <%_ } _%>
 
-  <%_ if (userDataStorage) { _%>
+  <%_ if (adminGroup && userDataStorage) { _%>
   # Admin role policy
   CognitoIdentityPoolAuthAdminPolicy:
     Type: AWS::IAM::Policy
@@ -252,6 +250,12 @@ Outputs:
     Value: !Ref CognitoUserPoolDomain
     Export:
       Name: !Sub "${AWS::StackName}-UserPoolDomain"
+  IdentityPool:
+    Description: Cognito Identity Pool
+    Value: !Ref CognitoIdPool
+    Export:
+      Name: !Sub "${AWS::StackName}-IdentityPoolId"
+  <%_ if(adminGroup) { _%>
   CognitoIdentityPoolAuthAdminRole:
     Value: !Ref CognitoIdentityPoolAuthAdminRole
     Description: Name of the Cognito Identity Pool authenticated user role
@@ -263,11 +267,7 @@ Outputs:
     Description: ARN of the Cognito Identity Pool authenticated user role
     Export:
       Name: !Sub "${AWS::StackName}-CognitoIdentityPoolAuthAdminRoleArn"
-  IdentityPool:
-    Description: Cognito Identity Pool
-    Value: !Ref CognitoIdPool
-    Export:
-      Name: !Sub "${AWS::StackName}-IdentityPoolId"
+  <%_ } _%>
   CognitoIdentityPoolAuthUserRole:
     Value: !Ref CognitoIdentityPoolAuthUserRole
     Description: Name of the Cognito Identity Pool authenticated user role

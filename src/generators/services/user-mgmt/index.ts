@@ -1,7 +1,6 @@
 import chalk from "chalk";
 import * as changeCase from "change-case";
 import * as path from "path";
-import ConfigUtils from "../../../utils/config-utils";
 import Utils from "../../../utils/utils";
 import {Base} from '../../core/base';
 import {IUserMgmtOptions} from "../../model/user-mgmt-options.model";
@@ -35,6 +34,7 @@ class UserMgmt extends Base {
       replyToEmailAddress: options.replyToEmailAddress,
       system: options.system,
       userDataStorage: options.userDataStorage,
+      adminGroup: options.adminGroup,
       usernameAttributes: options.usernameAttributes,
       userSchemas: options.userSchemas,
       userSignIn: options.userSignIn,
@@ -50,7 +50,10 @@ class UserMgmt extends Base {
 
   public async initializing() {
     this.logger.debug('Initializing phase start');
-    this.opts = ConfigUtils.getUserMgmtConfig(this.opts, this);
+    this.opts =  {
+      ...this.opts,
+      ...this.config.getAll()
+    };
   }
 
   public async prompting() {
@@ -68,6 +71,7 @@ class UserMgmt extends Base {
 
     const answerSystem = await prompt.askForSystem(this.opts.system) as any;
     const answerUserDataStorage = await prompt.askForUserDataStorage(this.opts.userDataStorage) as any;
+    const answerAdminGroup = await prompt.askForAdminGroup(this.opts.adminGroup) as any;
     const answerUserSignUp = await prompt.askForUserSignUp(this.opts.userSignUp) as any;
     const answerVerifiedAttributes = await prompt.askForVerifiedAttributes(this.opts.verifiedAttributes) as any;
     let answerReplyToEmailAddress = {};
@@ -95,6 +99,7 @@ class UserMgmt extends Base {
       ...answerReplyToEmailAddress,
       ...answerSystem,
       ...answerUserDataStorage,
+      ...answerAdminGroup,
       ...answerUsernameAttributes,
       ...answerUserSignIn,
       ...answerUserSignUp,
@@ -131,6 +136,7 @@ class UserMgmt extends Base {
     this.config.set('aliasAttributes', this.opts.aliasAttributes);
     this.config.set('system', this.opts.system);
     this.config.set('userDataStorage', this.opts.userDataStorage);
+    this.config.set('adminGroup', this.opts.adminGroup);
     this.config.set('userSignUp', this.opts.userSignUp);
     this.config.set('userSignIn', this.opts.userSignIn);
     this.config.set('usernameAttributes', this.opts.usernameAttributes);

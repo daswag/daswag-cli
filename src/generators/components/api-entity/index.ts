@@ -1,7 +1,6 @@
 import chalk from "chalk";
 import * as changeCase from "change-case";
 import * as path from "path";
-import ConfigUtils from "../../../utils/config-utils";
 import {YamlUtils} from "../../../utils/yaml-utils";
 import {Base} from '../../core/base';
 import {IApiOptions} from "../../model/api-options.model";
@@ -13,7 +12,7 @@ import {ApiEntityPrompts} from "./api-entity-prompts";
  */
 class ApiEntity extends Base {
 
-  public static GENERATOR_TYPE = 'AppEntity';
+  public static GENERATOR_TYPE = 'ApiEntity';
 
   private opts: IApiOptions = {};
   private newEntity : IEntitySchema;
@@ -26,10 +25,10 @@ class ApiEntity extends Base {
     this.skipChecks = options.skipChecks;
     this.rootPath = options.path ? options.path : this.destinationRoot();
     this.newEntity = {
-      name: changeCase.pascalCase(options.name),
-      nameCamelCase: changeCase.pascalCase(options.name),
-      nameKebabCase: changeCase.paramCase(options.name),
-      nameSnakeCase: changeCase.snakeCase(options.name),
+      name: options.name,
+      nameCamelCase: changeCase.pascalCase(options.name ? options.name : ''),
+      nameKebabCase: changeCase.paramCase(options.name ? options.name : ''),
+      nameSnakeCase: changeCase.snakeCase(options.name ? options.name : ''),
       type: options.type,
       linkedEntityName: options.linkedEntityName,
     };
@@ -42,9 +41,10 @@ class ApiEntity extends Base {
 
   public async initializing() {
     this.logger.debug('Initializing phase start');
-    // Load from configuration file
-    this.logger.debug('Getting information from configuration');
-    this.opts = ConfigUtils.getApiConfig(this.opts, this);
+    this.opts =  {
+      ...this.opts,
+      ...this.config.getAll()
+    };
   }
 
   public async prompting() {

@@ -2,7 +2,6 @@ import chalk from 'chalk';
 import * as changeCase from "change-case";
 import * as path from "path";
 import CheckUtils from '../../../utils/check-utils';
-import ConfigUtils from "../../../utils/config-utils";
 import Utils from "../../../utils/utils";
 import {Base} from '../../core/base';
 import {IApiOptions} from "../../model/api-options.model";
@@ -44,7 +43,10 @@ class Api extends Base {
 
   public async initializing() {
     this.logger.debug('Initializing phase start');
-    this.opts = ConfigUtils.getApiConfig(this.opts, this);
+    this.opts =  {
+      ...this.opts,
+      ...this.config.getAll()
+    };
   }
 
   public async prompting() {

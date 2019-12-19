@@ -28,6 +28,8 @@ describe('daswag:user-mgmt', () => {
             minLength: '10'
           },
         }],
+        userDataStorage: true,
+        adminGroup: true,
         usernameAttributes: "email_phone_number",
         userSignIn: "email_phone_number",
         userSignUp: true,

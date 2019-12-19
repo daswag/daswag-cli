@@ -4,6 +4,7 @@ export interface IUserMgmtOptions extends IOptions {
   aliasAttributes?: string[],
   system?: string,
   userDataStorage?: boolean,
+  adminGroup?: boolean,
   userSignUp?: boolean,
   userSignIn?: string,
   usernameAttributes?: string,

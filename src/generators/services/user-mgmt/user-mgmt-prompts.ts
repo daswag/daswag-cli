@@ -46,7 +46,7 @@ export class UserMgmtPrompts extends Prompt  {
         {name: 'Cognito UserPool & IdentityPool', value:UserMgmtPrompts.SYSTEM_CUP_CIP_VALUE},
       ],
       default: UserMgmtPrompts.SYSTEM_CUP_CIP_VALUE,
-      message: `${chalk.red('UserMgmt')} - Which ${chalk.yellow('*User Management*')} component would you like to use?`,
+      message: `${chalk.red('UserMgmt')} - Which ${chalk.yellow('*user Management*')} component would you like to use?`,
       name: 'system',
       type: 'list',
     }]) : { system : configValue };
@@ -55,10 +55,19 @@ export class UserMgmtPrompts extends Prompt  {
   public async askForUserDataStorage(configValue: boolean | undefined): Promise<Generator.Answers> {
     return configValue === undefined ? this.generator.prompt([ {
       default: false,
-      message: `${chalk.red('UserMgmt')} - Do you need an ${chalk.yellow('*User data storage*')} system?`,
+      message: `${chalk.red('UserMgmt')} - Do you need an ${chalk.yellow('*user data storage*')} system?`,
       name: 'userDataStorage',
       type: 'confirm',
     }]) : { userDataStorage : configValue };
+  }
+
+  public async askForAdminGroup(configValue: boolean | undefined): Promise<Generator.Answers> {
+    return configValue === undefined ? this.generator.prompt([ {
+      default: false,
+      message: `${chalk.red('UserMgmt')} - Do you need an ${chalk.yellow('*admin group*')} for your users?`,
+      name: 'adminGroup',
+      type: 'confirm',
+    }]) : { adminGroup : configValue };
   }
 
   public async askForVerifiedAttributes(configValue: string[] | undefined): Promise<Generator.Answers> {
@@ -67,7 +76,7 @@ export class UserMgmtPrompts extends Prompt  {
         {name: 'Email', value: UserMgmtPrompts.VERIFIED_ATTRIBUTE_EMAIL_VALUE, checked:true},
         {name: 'Phone number', value: UserMgmtPrompts.VERIFIED_ATTRIBUTE_PHONE_NUMBER_VALUE},
       ],
-      message: `${chalk.red('UserMgmt')} - Which ${chalk.yellow('*Attributes*')} do you want to verify?`,
+      message: `${chalk.red('UserMgmt')} - Which ${chalk.yellow('*attributes*')} do you want to verify?`,
       name: 'verifiedAttributes',
       type: 'checkbox',
     }]) : { verifiedAttributes : configValue };

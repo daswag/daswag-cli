@@ -1,7 +1,6 @@
 import chalk from "chalk";
 import * as changeCase from "change-case";
 import * as path from "path";
-import ConfigUtils from "../../../utils/config-utils";
 import Utils from "../../../utils/utils";
 import {YamlUtils} from "../../../utils/yaml-utils";
 import {Base} from '../../core/base';
@@ -42,9 +41,10 @@ class ApiResource extends Base {
 
   public async initializing() {
     this.logger.debug('Initializing phase start');
-    // Load from configuration file
-    this.logger.debug('Getting information from configuration');
-    this.opts = ConfigUtils.getApiConfig(this.opts, this);
+    this.opts =  {
+      ...this.opts,
+      ...this.config.getAll()
+    };
   }
 
   public async prompting() {
