@@ -80,7 +80,7 @@ class App extends Base {
     this.opts.services.forEach((service: string) => {
       // Combine with given generator
       if(service !== UserMgmt.GENERATOR_TYPE) {
-        this.composeWith(require.resolve('../services/' + service), {
+        this.composeWith(require.resolve('../services/' + changeCase.paramCase(service)), {
           ...this.opts,
           rootPath: this.destinationRoot(),
           rootAppName: this.rootAppName,
