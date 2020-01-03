@@ -23,50 +23,6 @@ describe('utils', () => {
     const value = Utils.formatBaseName('TestSample', 'User-Mgmt');
     expect(value).to.equal('TestSampleUserMgmt');
   });
-  it('should not find given \"test\" resource', () => {
-    const value = Utils.findResource('test', [
-      {
-        name: 'users',
-      },
-      {
-        name: 'tests'
-      }
-    ]);
-    expect(value).to.equal(undefined);
-  });
-  it('should not find any resource with empty resources array', () => {
-    const value = Utils.findResource('test', []);
-    expect(value).to.equal(undefined);
-  });
-  it('should not find any resource with empty resource name', () => {
-    const value = Utils.findResource('', [{
-      name: 'users'
-    }]);
-    expect(value).to.equal(undefined);
-  });
-  it('should find given root \'users\' resource', () => {
-    const resource = {
-      name: 'users',
-    };
-    const value = Utils.findResource('users', [
-      resource
-    ]);
-    expect(value).to.equal(resource);
-  });
-  it('should find given \'user\' resource', () => {
-    const resource = {
-      name: 'user',
-    };
-    const value = Utils.findResource('user', [
-      {
-        name: 'users',
-        resources: [
-          resource
-        ]
-      }
-    ]);
-    expect(value).to.equal(resource);
-  });
   it('should validate the test@test.fr \'email\' address', () => {
     const value = Utils.isValidEmail('test@test.fr');
     expect(value).to.equal(true);

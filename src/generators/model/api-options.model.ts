@@ -12,8 +12,16 @@ export interface IApiResourceOptions {
   nameSnakeCase?: string,
   nameKebabCase?: string,
   path?: string,
+  parameters?: IApiParameter[],
   methods?: IApiMethodOptions[],
-  resources?: IApiResourceOptions[],
+}
+
+export interface IApiParameter {
+  name?: string,
+  type?: string
+  attributeDataType?: string,
+  required?: boolean,
+  description?: string,
 }
 
 export interface IApiMethodOptions {

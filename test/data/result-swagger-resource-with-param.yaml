@@ -32,7 +32,26 @@ info:
     url: https://www.apache.org/licenses/LICENSE-2.0.html
 
 paths:
-  /users:
+  /users/{idUser}:
+    parameters:
+      - in: path
+        name: idUser
+        schema:
+          type: string
+        required: true
+        description: User identifier
+      - in: query
+        name: start
+        schema:
+          type: string
+        required: false
+        description: Start of the period
+      - in: query
+        name: end
+        schema:
+          type: string
+        required: false
+        description: End of the period
     options:
       tags:
         - Users
@@ -79,30 +98,6 @@ components:
           type: integer
         message:
           type: string
-    User:
-      type: object
-      required:
-        - id
-        - firstName
-        - age
-      properties:
-        id:
-          type: string
-        firstName:
-          type: string
-          minLength: 2
-        lastName:
-          type: string
-          minLength: 2
-          maxLength: 10
-        age:
-          type: number
-          minimum: 0
-          maximum: 100
-        test:
-          type: integer
-        activate:
-          type: boolean
   securitySchemes:
     default:
       type: "apiKey"

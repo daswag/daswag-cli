@@ -50,7 +50,7 @@ export class Add extends GeneratorBase {
     this.validate(options);
 
     // Then launch the dedicated generator
-    await super.generate('services', answer.component, {
+    await super.generate('components', answer.component, {
       ...options,
     });
   }

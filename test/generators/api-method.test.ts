@@ -8,9 +8,9 @@ import {Prompt} from '../../src/generators/core/prompt';
 import {IApiOptions} from "../../src/generators/model/api-options.model";
 import {ApiPrompts} from '../../src/generators/services/api/api-prompts';
 import {ConstantsUtils} from "../../src/utils/constants-utils";
-import LoggerUtils from "../../src/utils/logger-utils";
 import {YamlUtils} from "../../src/utils/yaml-utils";
 import FileTools from "../tools/file-tools";
+import LoggerUtils from "../../src/utils/logger-utils";
 
 describe('daswag:api-method', () => {
   context('generate an API Method', () => {
@@ -33,6 +33,7 @@ describe('daswag:api-method', () => {
         resources: [
           {
             name: "users",
+            nameKebabCase: "users",
             nameSnakeCase: "users",
             path: "/users",
             methods: [
@@ -54,17 +55,14 @@ describe('daswag:api-method', () => {
           })
           .withPrompts({
             ...method,
-            resourceName: 'users',
+            resourcePath: '/users',
 
           })
           .on('ready',  (gen) => {
-            // This is called right before `generator.run()` is calledclear
             generator = gen;
           })
           .then((dir) => {
-            const logger = LoggerUtils.createLogger("ApiMethod");
             if(config.baseNameKebabCase) {
-              logger.info(dir);
               assert.file(path.join(dir, '.yo-rc.json'));
               assert.jsonFileContent(path.join(dir, '.yo-rc.json'), {"daswag-cli": config});
               FileTools.assertFilesExist(config, dir, '', FileTools.EXPECTED_FILES.apiEntity);

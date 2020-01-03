@@ -46,13 +46,48 @@ describe('swagger-utils', () => {
   it('should add a new resource', () => {
     const content = YamlUtils.readYaml(path.join(__dirname, '../data/init-swagger.yaml'));
     YamlUtils.addSwaggerResource(content, {
-      name: 'user',
-      nameKebabCase: 'user',
-      nameCamelCase: 'User',
-      nameSnakeCase: 'user',
+      name: 'users',
+      nameKebabCase: 'users',
+      nameCamelCase: 'Users',
+      nameSnakeCase: 'users',
       path: '/users',
     });
     expect(JSON.stringify(content)).to.be.equal(JSON.stringify(YamlUtils.readYaml(path.join(__dirname, '../data/result-swagger-resource.yaml'))));
+  });
+
+  it('should add a new resource with path parameters', () => {
+    const content = YamlUtils.readYaml(path.join(__dirname, '../data/init-swagger.yaml'));
+    YamlUtils.addSwaggerResource(content, {
+      name: 'users',
+      nameKebabCase: 'users',
+      nameCamelCase: 'Users',
+      nameSnakeCase: 'users',
+      path: '/users/{idUser}',
+      parameters: [
+        {
+          name: 'idUser',
+          type: 'path',
+          attributeDataType: 'string',
+          required: true,
+          description: 'User identifier',
+        },
+        {
+          name: 'start',
+          type: 'query',
+          attributeDataType: 'string',
+          required: false,
+          description: 'Start of the period',
+        },
+        {
+          name: 'end',
+          type: 'query',
+          attributeDataType: 'string',
+          required: false,
+          description: 'End of the period',
+        }
+      ]
+    });
+    expect(JSON.stringify(content)).to.be.equal(JSON.stringify(YamlUtils.readYaml(path.join(__dirname, '../data/result-swagger-resource-with-param.yaml'))));
   });
 
   it('should add a new object entity', () => {
@@ -135,10 +170,10 @@ describe('swagger-utils', () => {
       linkedEntityName: 'Users'
     };
     const resource = {
-      name: 'user',
-      nameKebabCase: 'user',
-      nameCamelCase: 'User',
-      nameSnakeCase: 'user',
+      name: 'users',
+      nameKebabCase: 'users',
+      nameCamelCase: 'Users',
+      nameSnakeCase: 'users',
       path: '/users',
       methods: [
         method,

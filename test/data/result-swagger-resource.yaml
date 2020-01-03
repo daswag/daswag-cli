@@ -34,6 +34,8 @@ info:
 paths:
   /users:
     options:
+      tags:
+        - Users
       responses:
         200:
           description: "200 response"

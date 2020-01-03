@@ -1,6 +1,7 @@
 import * as changeCase from "change-case";
 import * as pjson from "pjson";
-import {IApiResourceOptions} from "../generators/model/api-options.model";
+import {IApiParameter, IApiResourceOptions} from "../generators/model/api-options.model";
+import {ConstantsUtils} from "./constants-utils";
 import LoggerUtils from './logger-utils';
 
 export default class Utils {
@@ -24,19 +25,32 @@ export default class Utils {
     return changeCase.pascalCase(baseName + (baseName.toLowerCase().endsWith(upperSuffix.toLowerCase()) ? '' : upperSuffix));
   }
 
-  public static findResource(name: string, resources: IApiResourceOptions[]): IApiResourceOptions | undefined {
-    if(!name || !resources || resources.length === 0) {
-      return;
+  public static getResourcePathParam(path: string, resources: IApiResourceOptions[] | undefined): IApiParameter[] {
+    const resourcePathParam: IApiParameter[] = [];
+    if(resources) {
+      resources.forEach((resource: IApiResourceOptions) => {
+        if(resource.path === path && resource.parameters) {
+          resource.parameters.forEach((param: IApiParameter) => {
+            if(param.type && param.type === ConstantsUtils.PATH_PATH) {
+              resourcePathParam.push(param);
+            }
+          })
+        }
+      });
     }
-    let value: IApiResourceOptions | undefined;
-    resources.forEach((resource: IApiResourceOptions) => {
-      if(resource.name === name) {
-        value = resource;
-      } else if(resource.resources) {
-        value = Utils.findResource(name, resource.resources);
-      }
-    });
-    return value;
+    return resourcePathParam;
+  }
+
+  public static findResourceByPath(path: string, resources: IApiResourceOptions[] | undefined): IApiResourceOptions | undefined {
+    let result: IApiResourceOptions | undefined;
+    if(resources) {
+      resources.forEach((resource:IApiResourceOptions) => {
+        if(resource.path === path) {
+          result = resource;
+        }
+      });
+    }
+    return result;
   }
 
   public static isValidEmail(email: string) {

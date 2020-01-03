@@ -16,13 +16,16 @@ class ApiMethod extends Base {
 
   private opts: IApiOptions = {};
   private newMethod : IApiMethodOptions;
-  private resourceName: string;
+  private resourcePath: string;
+  private createOrUpdateMethods: IApiMethodOptions[] = [];
 
   private readonly skipChecks: boolean;
+  private readonly action: string;
 
   constructor(args: string | string[], options: any) {
     super(args, options);
     this.skipChecks = options.skipChecks;
+    this.action = options.action;
     this.newMethod = {
       name: options.name,
       nameCamelCase: changeCase.pascalCase(options.name ? options.name : ''),
@@ -30,7 +33,7 @@ class ApiMethod extends Base {
       type: options.type,
       linkedEntityName: options.linkedEntityName,
     };
-    this.resourceName = options.resourceName;
+    this.resourcePath = options.resourcePath;
     this.registerPrettierTransform()
   }
 
@@ -54,20 +57,20 @@ class ApiMethod extends Base {
     // Check existing resources
     if(!this.opts.resources || this.opts.resources.length === 0) {
       this.logger.error('No resource configured. Exiting Method generator');
-      this.log(`You don't have any resource configured. Please create a new resource by using the following command: ${chalk.yellow('daswag generate')}`);
+      this.log(`You don't have any resource configured. Please create a new resource by using the following command: ${chalk.yellow('daswag add:resource')}`);
       process.exit(0);
     } else {
       // Choose resource to bind method
-      const answerResourceName = await prompt.askForResourceName(this.resourceName, this.opts.resources);
-      if(answerResourceName && answerResourceName.resourceName) {
-        this.resourceName = answerResourceName.resourceName;
+      const answerResourcePath = await prompt.askForResourcePath(this.resourcePath, this.opts.resources);
+      if(answerResourcePath && answerResourcePath.resourcePath) {
+        this.resourcePath = answerResourcePath.resourcePath;
       }
 
       // Get Method type
       const answerType = await prompt.askForMethodType(this.newMethod.type);
 
       // Get Method name
-      let answerName = await prompt.askForMethodName(this.newMethod.name);
+      let answerName = await prompt.askForMethodName(this.newMethod.name, this.opts.resources);
       if (answerName && answerName.name) {
         answerName = {
           name: answerName.name,
@@ -92,7 +95,7 @@ class ApiMethod extends Base {
       this.logger.debug('New method content: ' + JSON.stringify(this.newMethod));
 
       // Find resource
-      const foundedResource = Utils.findResource(this.resourceName, this.opts.resources);
+      const foundedResource = Utils.findResourceByPath(this.resourcePath, this.opts.resources);
       if(foundedResource) {
         if(!foundedResource.methods) {
           foundedResource.methods = [];
@@ -116,25 +119,26 @@ class ApiMethod extends Base {
   public writing() {
     this.logger.debug('Writing phase start');
     if(this.opts.resources) {
-      const resource : IApiResourceOptions | undefined = Utils.findResource(this.resourceName, this.opts.resources);
+      const resource : IApiResourceOptions | undefined = Utils.findResourceByPath(this.resourcePath, this.opts.resources);
       // Copy new files
-      new ApiMethodFiles(this, this.opts, this.resourceName, this.newMethod).writeFiles();
+      if(resource && resource.nameKebabCase) {
+        new ApiMethodFiles(this, this.opts, resource.nameKebabCase, this.newMethod).writeFiles();
 
-      // Update swagger file content
-      const swaggerPath = path.join(this.destinationPath(), 'specs/specs.yaml');
-      const content = YamlUtils.readYaml(swaggerPath);
-      if (content && resource) {
-        YamlUtils.addSwaggerMethod(content, resource, this.newMethod);
-        YamlUtils.dumpYaml(content, swaggerPath);
-      }
+        // Update swagger file content
+        const swaggerPath = path.join(this.destinationPath(), 'specs/specs.yaml');
+        const content = YamlUtils.readYaml(swaggerPath);
+        if (content && resource) {
+          YamlUtils.addSwaggerMethod(content, resource, this.newMethod);
+          YamlUtils.dumpYaml(content, swaggerPath);
+        }
 
-      // Update template file content
-      const templatePath = path.join(this.destinationPath(), 'template.yaml');
-      this.logger.info('Updating template file: ' + templatePath );
-      const templateContent = YamlUtils.readYaml(templatePath);
-      if(templateContent && resource) {
-        YamlUtils.addTemplateFunction(templateContent, resource, this.newMethod);
-        YamlUtils.dumpYaml(templateContent, templatePath);
+        // Update template file content
+        const templatePath = path.join(this.destinationPath(), 'template.yaml');
+        const templateContent = YamlUtils.readYaml(templatePath);
+        if (templateContent && resource) {
+          YamlUtils.addTemplateFunction(templateContent, resource, this.newMethod);
+          YamlUtils.dumpYaml(templateContent, templatePath);
+        }
       }
     }
   }

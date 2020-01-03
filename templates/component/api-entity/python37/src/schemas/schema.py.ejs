@@ -4,12 +4,12 @@ from marshmallow import Schema, fields
 class <%= nameCamelCase %>Schema(Schema):
 <%_ for(var i=0; i < attributes.length; i++) { _%>
     <%_ if(attributes[i].attributeDataType === 'string') { _%>
-    <%= attributes[i].name %>: fields.String(required=<%_ attributes[i].required _%>)
+    <%= attributes[i].name %>: fields.String(required=<%_ if(attributes[i].required) { _%> True <%_ } else { _%>False<%_ } _%>)
     <%_ } else if(attributes[i].attributeDataType === 'number') { _%>
-    <%= attributes[i].name %>: fields.Number(required=<%_ attributes[i].required _%>)
+    <%= attributes[i].name %>: fields.Number(required=<%_ if(attributes[i].required) { _%> True <%_ } else { _%>False<%_ } _%>)
     <%_ } else if(attributes[i].attributeDataType === 'integer') { _%>
-    <%= attributes[i].name %>: fields.Integer(required=<%_ attributes[i].required _%>)
+    <%= attributes[i].name %>: fields.Integer(required=<%_ if(attributes[i].required) { _%> True <%_ } else { _%>False<%_ } _%>)
     <%_ } else if(attributes[i].attributeDataType === 'boolean') { _%>
-    <%= attributes[i].name %>: fields.Boolean(required=<%_ attributes[i].required _%>)
+    <%= attributes[i].name %>: fields.Boolean(required=<%_ if(attributes[i].required) { _%> True <%_ } else { _%>False<%_ } _%>)
     <%_ } _%>
 <%_ } _%>

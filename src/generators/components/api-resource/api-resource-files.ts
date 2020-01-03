@@ -1,6 +1,6 @@
 import {Base} from "../../core/base";
 import File from '../../core/file';
-import {IApiMethodOptions, IApiOptions, IApiResourceOptions} from "../../model/api-options.model";
+import {IApiResourceOptions} from "../../model/api-options.model";
 
 
 export class ApiResourceFiles extends File {

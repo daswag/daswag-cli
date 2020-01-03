@@ -2,7 +2,7 @@ import {CLOUDFORMATION_SCHEMA} from "cloudformation-js-yaml-schema"
 import * as fs from "fs";
 import * as yaml from 'js-yaml';
 import {Prompt} from "../generators/core/prompt";
-import {IApiMethodOptions, IApiResourceOptions} from "../generators/model/api-options.model";
+import {IApiMethodOptions, IApiParameter, IApiResourceOptions} from "../generators/model/api-options.model";
 import {IAttributeSchema, IEntitySchema} from "../generators/model/options.model";
 import FileUtils from "./file-utils";
 import LoggerUtils from "./logger-utils";
@@ -42,6 +42,9 @@ export class YamlUtils {
       const newResource: any = {};
       newResource[resource.path] = {
         "options": {
+          "tags": [
+            resource.nameCamelCase
+          ],
           "responses": {
             "200": {
               "description": "200 response",
@@ -87,6 +90,26 @@ export class YamlUtils {
           }
         }
       };
+
+      // Then add parameters
+      if(resource.parameters && resource.parameters.length > 0) {
+        // Create parameters item
+        newResource[resource.path] = {
+          parameters: [],
+          ...newResource[resource.path],
+        };
+        for(const param of resource.parameters) {
+          newResource[resource.path]['parameters'].push({
+            "in": param.type,
+            "name": param.name,
+            "schema": {
+              "type": param.attributeDataType
+            },
+            "required": param.required,
+            "description": param.description
+          });
+        }
+      }
 
       // Add new resource to paths
       content.paths = {

@@ -1,8 +1,5 @@
 {
   "daswag-cli": {
-    "rootAppName": "SampleApp",
-    "rootAppNameCamelCase": "SampleApp",
-    "rootAppNameKebabCase": "sample-app",
     "baseName": "SampleApp",
     "baseNameCamelCase": "SampleAppApi",
     "baseNameKebabCase": "sample-app-api",
@@ -15,6 +12,7 @@
     "resources": [
       {
         "name": "users",
+        "nameKebabCase": "users",
         "nameSnakeCase": "users",
         "path": "/users"
       }
