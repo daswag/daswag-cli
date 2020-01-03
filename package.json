@@ -1,7 +1,7 @@
 {
   "name": "daswag-cli",
   "description": "Generate your full Serverless Web Application in seconds with daSWAG cli.",
-  "version": "1.0.9",
+  "version": "1.0.10",
   "author": {
     "name": "Steve Houël",
     "url": "https://github.com/stevehouel"
