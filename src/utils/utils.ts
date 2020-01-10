@@ -1,6 +1,6 @@
 import * as changeCase from "change-case";
 import * as pjson from "pjson";
-import {IApiParameter, IApiResourceOptions} from "../generators/model/api-options.model";
+import {IApiMethodOptions, IApiParameter, IApiResourceOptions} from "../generators/model/api-options.model";
 import {ConstantsUtils} from "./constants-utils";
 import LoggerUtils from './logger-utils';
 
@@ -47,6 +47,22 @@ export default class Utils {
       resources.forEach((resource:IApiResourceOptions) => {
         if(resource.path === path) {
           result = resource;
+        }
+      });
+    }
+    return result;
+  }
+
+  public static findResourceByMethodName(name: string, resources: IApiResourceOptions[] | undefined): IApiResourceOptions | undefined {
+    let result: IApiResourceOptions | undefined;
+    if(resources) {
+      resources.forEach((resource:IApiResourceOptions) => {
+        if(resource.methods) {
+          resource.methods.forEach((method: IApiMethodOptions) => {
+            if(method.name && method.name === name) {
+              result = resource;
+            }
+          });
         }
       });
     }

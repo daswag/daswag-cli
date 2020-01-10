@@ -129,7 +129,7 @@ class ApiEntity extends Base {
   public writing() {
     this.logger.debug('Writing phase start');
     if(!this.createOrUpdateEntities || this.createOrUpdateEntities.length === 0) {
-      this.log('No entity to create or update.')
+      this.log('No entity to create or update.');
     } else {
       const swaggerPath = path.join(this.destinationPath(), 'specs/specs.yaml');
       const content = YamlUtils.readYaml(swaggerPath);

@@ -25,6 +25,17 @@ export default class CheckUtils {
     return check;
   }
 
+  public static checkAmplifyCli() {
+    let check = false;
+    try {
+      execSync('amplify --version', {stdio: 'ignore'})
+      check = true
+    } catch {
+      this.logger.debug('Checking Amplify CLI : KO');
+    }
+    return check;
+  }
+
   public static checkAWS() {
     let check = false;
     try {

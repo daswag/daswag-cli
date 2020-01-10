@@ -1,6 +1,42 @@
+<%
+
+var requiredParamNames = [];
+var optionalParamNames = [];
+var requiredParamFieldsName = [];
+var optionalParamFieldsName = [];
+
+if(resource.parameters && resource.parameters.length > 0) {
+  for(var i=0; i < resource.parameters.length; i++) {
+    if(resource.parameters[i].required) {
+      requiredParamNames.push('\'' + resource.parameters[i].name + '\'');
+      requiredParamFieldsName.push(resource.parameters[i].name);
+    } else {
+      optionalParamNames.push('\'' + resource.parameters[i].name + '\'');
+      optionalParamFieldsName.push(resource.parameters[i].name);
+    }
+  }
+}
+
+var requiredParams = requiredParamNames.join(',');
+var optionalParams = optionalParamNames.join(',');
+var requiredParamFields = requiredParamFieldsName.join(',');
+var optionalParamFields = optionalParamFieldsName.join(',');
+
+%>
+
+from src.core.decorator.api_endpoint import api_endpoint
+from src.core.decorator.api_params import api_params
+from src.main import init
+
+# Initialize context
+init()
 
 
-@endpoint(userAcl=[authority.ROLE_ADMIN])
-def get_all_accounts(event, context, session):
-  accounts = session.query(models.Account).order_by(models.Account.name)
-  return None, accounts_schema.dump(accounts).data
+@api_endpoint()
+<%_ if(requiredParams || optionalParams) { _%>
+@api_params(required=[<%- requiredParams %>], optional=[<%- optionalParams %>])
+def <%= method.nameSnakeCase %>(event, context, resource, <%- requiredParamFields %>):
+<%_ } else { _%>
+def <%= method.nameSnakeCase %>(event, context, resource):
+<%_ } _%>
+    return None, "Success"

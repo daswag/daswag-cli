@@ -79,11 +79,15 @@ export class ApiMethodPrompts extends Prompt  {
     }]) : { name : configValue };
   }
 
-  public async askForUpdatedMethods(methods: IApiMethodOptions[] | undefined): Promise<Generator.Answers> {
+  public async askForUpdatedMethods(resources: IApiResourceOptions[] | undefined): Promise<Generator.Answers> {
     const methodChoices : any = [];
-    if(methods) {
-      methods.forEach((method: IApiMethodOptions) => {
-        methodChoices.push({name: `${method.type} - ${method.nameCamelCase}`, value: method.nameCamelCase});
+    if(resources) {
+      resources.forEach((resource: IApiResourceOptions) => {
+        if(resource.methods) {
+          resource.methods.forEach((method: IApiMethodOptions) => {
+            methodChoices.push({name: `${resource.path} : ${method.type} - ${method.nameCamelCase}`, value: method.nameCamelCase});
+          });
+        }
       });
     }
     return this.generator.prompt([{

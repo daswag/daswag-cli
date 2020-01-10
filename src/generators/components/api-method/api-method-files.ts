@@ -1,6 +1,6 @@
 import {Base} from "../../core/base";
 import File from '../../core/file';
-import {IApiMethodOptions, IApiOptions} from "../../model/api-options.model";
+import {IApiMethodOptions, IApiOptions, IApiResourceOptions} from "../../model/api-options.model";
 
 
 export class ApiMethodFiles extends File {
@@ -8,13 +8,16 @@ export class ApiMethodFiles extends File {
   private static API_METHOD_TEMPLATE_PATH = '../../../templates/component/api-method';
   private static PYTHON37_PATH = 'python37/';
 
-  private readonly resourceNameKebabCase:string;
+  private readonly resource: IApiResourceOptions;
   private readonly method: IApiMethodOptions;
 
-  constructor(generator: Base, options: IApiOptions, resourceNameKebabCase: string, method: IApiMethodOptions) {
-    super(generator, method, ApiMethodFiles.API_METHOD_TEMPLATE_PATH);
-    this.resourceNameKebabCase = resourceNameKebabCase;
-    this.method = method;
+  constructor(generator: Base, options: IApiOptions, resourceContent: IApiResourceOptions, methodContent: IApiMethodOptions) {
+    super(generator, {
+      method: methodContent,
+      resource: resourceContent
+    }, ApiMethodFiles.API_METHOD_TEMPLATE_PATH);
+    this.resource = resourceContent;
+    this.method = methodContent;
   }
 
   public files() {
@@ -31,7 +34,7 @@ export class ApiMethodFiles extends File {
           templates: [
             {
               file: 'function_handler.py.ejs',
-              renameTo: `src/handlers/${this.resourceNameKebabCase}/${this.method.nameSnakeCase}.py`
+              renameTo: `src/handlers/${this.resource.nameKebabCase}/${this.method.nameSnakeCase}.py`
             }
           ]
         }

@@ -56,12 +56,12 @@ class ApiResource extends Base {
     // Get ApiMethod prompts
     const prompt = new ApiResourcePrompts(this);
     if(this.action && this.action === ConstantsUtils.ACTION_UPDATE && this.opts.resources && this.opts.resources.length > 0) {
+      this.log(`You currently have created those resource paths:`);
+      this.opts.resources.forEach((resource: IApiResourceOptions) => {
+        this.log(`- ${resource.path}`);
+      });
       const answerUpdatedResources = await prompt.askForUpdatedResources(this.opts.resources);
       if (answerUpdatedResources && answerUpdatedResources.updatedResources && answerUpdatedResources.updatedResources.length > 0) {
-        this.log(`You currently have created those resource paths:`);
-        this.opts.resources.forEach((resource: IApiResourceOptions) => {
-          this.log(`- ${resource.path}`);
-        });
         this.opts.resources.forEach((resource: IApiResourceOptions) => {
           if (answerUpdatedResources.updatedResources.indexOf(resource.path) !== -1) {
             // Entity is present in the list
@@ -69,7 +69,7 @@ class ApiResource extends Base {
           }
         });
       }
-    } else if(this.action && this.action === ConstantsUtils.ACTION_UPDATE && (!this.opts.entities || this.opts.entities.length === 0)) {
+    } else if(this.action && this.action === ConstantsUtils.ACTION_UPDATE && (!this.opts.resources || this.opts.resources.length === 0)) {
       this.log(`You do not have any resource to update.`);
     }
     else {

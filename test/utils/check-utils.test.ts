@@ -27,6 +27,13 @@ describe('check-utils', () => {
     proc.execSync.throws(new Error(''));
     expect(CheckUtils.checkServerless()).to.equal(false);
   });
+  it('should check that Amplify CLI has been installed', () => {
+    expect(CheckUtils.checkAmplifyCli()).to.equal(true);
+  });
+  it('should check that Amplify CLI has not been installed', () => {
+    proc.execSync.throws(new Error(''));
+    expect(CheckUtils.checkAmplifyCli()).to.equal(false);
+  });
   it('should check that Pip has been installed', () => {
     expect(CheckUtils.checkPip()).to.equal(true);
   });
