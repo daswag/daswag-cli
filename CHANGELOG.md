@@ -1,3 +1,10 @@
+## [1.0.10](https://github.com/daswag/daswag-cli/compare/v1.0.9...v1.0.10) (2020-01-03)
+
+
+### Bug Fixes
+
+* **generators:** fix generators ([57e8cb3](https://github.com/daswag/daswag-cli/commit/57e8cb332a6cdc4780230be35f4c34a235ddb14c))
+
 ## [1.0.9](https://github.com/daswag/daswag-cli/compare/v1.0.8...v1.0.9) (2019-12-19)
 
 
